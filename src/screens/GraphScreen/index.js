@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import {
+  ActivityIndicator,
   TouchableOpacity,
   ScrollView,
   View,
+  StyleSheet,
   Image,
   Dimensions,
   Text
@@ -10,14 +12,11 @@ import {
 import { Appbar, Button, RadioButton, TextInput } from 'react-native-paper';
 import styles from './style';
 import colors from '../../constants/colors';
-import {
-  LineChart,
-  BarChart,
-  PieChart,
-  ProgressChart,
-  ContributionGraph
-} from 'react-native-chart-kit';
+import { LineChart } from 'react-native-chart-kit';
 import NavigationService from '../../navigation/NavigationService';
+
+const url = `http://jhprohealth.herokuapp.com/polls`;
+const KGTOLB = 2.20462;
 
 const { width } = Dimensions.get('window');
 const chartConfig = {
@@ -30,7 +29,41 @@ const chartConfig = {
 export default class GraphScreen extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      weightArray: [],
+      stepArray: [],
+      activeArray: [],
+      bmiZones: [],
+      loading: true
+    };
+  }
+
+  async componentDidMount() {
+    const data = await fetch(`${url}/get_feedback/9999`);
+    const json = await data.json();
+    const feedbackArray = json.FeedbackData;
+    const weightArray = feedbackArray.map(item => item.avg_weight * KGTOLB);
+    const stepArray = feedbackArray.map(item => item.avg_steps);
+    const activeArray = feedbackArray.map(item => item.total_active_min / 60);
+
+    const { height } = feedbackArray[0];
+
+    this.setState({ weightArray, stepArray, activeArray, loading: false });
+    this.calculateBmiZones(height / 100);
+
+    console.log('data', json);
+    console.log('weight array', weightArray);
+  }
+
+  calculateBmiZones(height) {
+    console.log('height', height);
+    let bmiZones = [];
+    const heightSquared = height * height;
+    bmiZones.push(heightSquared * 18.5 * KGTOLB);
+    bmiZones.push(heightSquared * 25 * KGTOLB);
+    bmiZones.push(heightSquared * 30 * KGTOLB);
+    console.log('bmi zones', bmiZones);
+    this.setState({ bmiZones });
   }
 
   renderHeader() {
@@ -42,147 +75,274 @@ export default class GraphScreen extends Component {
     );
   }
 
-  renderGraph() {
+  renderBmiGraph(key, title, data) {
+    const { bmiZones } = this.state;
+    const labels = data.map((item, index) => index + 1);
+    let min = Number.POSITIVE_INFINITY;
+    let max = Number.NEGATIVE_INFINITY;
+
+    data.forEach(element => {
+      min = Math.min(element, min);
+      max = Math.max(element, max);
+    });
+
+    console.log('min, max', min, max);
+
+    const zoneUnderweight = Math.max(bmiZones[0] - min, 0);
+    const zoneHealthy = bmiZones[1] - bmiZones[0];
+    const zoneOverweight = bmiZones[2] - bmiZones[1];
+    const zoneObese = Math.max(max - bmiZones[2], 0);
+    const zoneSums = zoneUnderweight + zoneHealthy + zoneOverweight + zoneObese;
+
+    const zoneUnderweightPercentage = (zoneUnderweight / zoneSums) * 100 + '%';
+    const zoneHealthyPercentage = (zoneHealthy / zoneSums) * 100 + '%';
+    const zoneOverweightPercentage = (zoneOverweight / zoneSums) * 100 + '%';
+    const zoneObesePercentage = (zoneObese / zoneSums) * 100 + '%';
+
+    const fieldColors = ['red', 'orange', 'green', 'blue'];
+    const fieldLabels = ['Obese', 'Overweight', 'Healthy', 'Underweight'];
+
     return (
-      <View>
-        <LineChart
-          data={{
-            labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-            datasets: [
-              {
-                data: [
-                  Math.random() * 100,
-                  Math.random() * 100,
-                  Math.random() * 100,
-                  Math.random() * 100,
-                  Math.random() * 100,
-                  Math.random() * 100
-                ]
-              }
-            ]
-          }}
-          width={width - 32}
-          height={200}
-          chartConfig={{
-            backgroundColor: '#e26a00',
-            backgroundGradientFrom: '#fb8c00',
-            backgroundGradientTo: '#ffa726',
-            decimalPlaces: 2, // optional, defaults to 2dp
-            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            style: {
-              borderRadius: 16
-            }
-          }}
-          bezier
+      <View style={{ marginVertical: 16 }}>
+        <Text>{title}</Text>
+        <View>
+          <LineChart
+            data={{
+              labels,
+              datasets: [
+                {
+                  data
+                }
+              ]
+            }}
+            width={width - 32}
+            height={200}
+            withDots={true}
+            withInnerLines={false}
+            onDataPointClick={() => {}}
+            chartConfig={{
+              backgroundGradientFrom: '#fff',
+              backgroundGradientTo: '#fff',
+              decimalPlaces: 1,
+              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`
+            }}
+          />
+          <View
+            style={{
+              ...StyleSheet.absoluteFill,
+              backgroundColor: 'blue',
+              opacity: 0.2,
+              top: 16,
+              right: 24,
+              left: 64,
+              bottom: 34
+            }}
+          >
+            <View
+              style={{ height: zoneObesePercentage, backgroundColor: 'red' }}
+            />
+            <View
+              style={{
+                height: zoneOverweightPercentage,
+                backgroundColor: 'orange'
+              }}
+            />
+            <View
+              style={{
+                height: zoneHealthyPercentage,
+                backgroundColor: 'green'
+              }}
+            />
+            <View
+              style={{
+                height: zoneUnderweightPercentage,
+                backgroundColor: 'blue'
+              }}
+            />
+          </View>
+        </View>
+        <Text style={{ alignSelf: 'center', marginLeft: 24, color: '#404040' }}>
+          Weeks
+        </Text>
+
+        <View
           style={{
-            marginVertical: 8,
-            borderRadius: 16
+            flexDirection: 'row',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            marginTop: 24
           }}
-        />
+        >
+          {fieldColors.map((e, i) => (
+            <View
+              key={i}
+              style={{
+                width: width / 3,
+                height: 24,
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginTop: 8
+              }}
+            >
+              <View
+                style={{
+                  backgroundColor: e,
+                  width: 10,
+                  height: 10,
+                  opacity: 0.2
+                }}
+              />
+              <Text style={{ marginLeft: 8 }}>{fieldLabels[i]}</Text>
+            </View>
+          ))}
+        </View>
       </View>
     );
   }
 
-  renderProgressChart() {
-    const data = [0.4, 0.6, 0.8];
+  renderGraph(key, title, data) {
+    const labels = data.map((item, index) => index + 1);
+    let min = Number.POSITIVE_INFINITY;
+    let max = Number.NEGATIVE_INFINITY;
+
+    data.forEach(element => {
+      min = Math.min(element, min);
+      max = Math.max(element, max);
+    });
+
+    const RECOMMENDED_STEPS = 4600;
+    const RECOMMENDED_HOURS = 3;
+
+
+    let topPercentage = 0, bottomPercentage = 0;
+
+    if(key == 'STEPS') {
+      bottomPercentage = RECOMMENDED_STEPS / max * 100;
+      topPercentage = 100 - bottomPercentage;
+
+      console.log(topPercentage, bottomPercentage);
+    } else if(key == 'ACTIVE') {
+      bottomPercentage = RECOMMENDED_HOURS / max * 100;
+      topPercentage = 100 - bottomPercentage;
+    }
+
+
+
     return (
-      <ProgressChart
-        data={data}
-        width={width - 32}
-        height={200}
-        chartConfig={chartConfig}
-        style={{
-          marginVertical: 8,
-          borderRadius: 16
-        }}
-      />
+      <View style={{ marginVertical: 16 }}>
+        <Text>{title}</Text>
+        <View>
+          <LineChart
+            data={{
+              labels,
+              datasets: [
+                {
+                  data
+                }
+              ]
+            }}
+            width={width - 32}
+            height={200}
+            withInnerLines={false}
+            chartConfig={{
+              backgroundColor: '#fff',
+              backgroundGradientFrom: '#fff',
+              backgroundGradientTo: '#fff',
+              decimalPlaces: 2, // optional, defaults to 2dp
+              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+              style: {
+                borderRadius: 16,
+                backgroundColor: 'blue'
+              }
+            }}
+            withDots
+            fromZero
+            style={{}}
+          />
+
+          <View
+            style={{
+              ...StyleSheet.absoluteFill,
+              opacity: 0.2,
+              top: 16,
+              right: 24,
+              left: 64,
+              bottom: 34
+            }}
+          >
+            <View style={{ height: topPercentage + "%", backgroundColor: 'green' }} />
+            <View
+              style={{
+                height: bottomPercentage + "%",
+                backgroundColor: 'red'
+              }}
+            />
+          </View>
+        </View>
+        <Text style={{ alignSelf: 'center', marginLeft: 24, color: '#404040' }}>
+          Weeks
+        </Text>
+      </View>
     );
   }
 
-  renderBarChart() {
-    const data = {
-      labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-      datasets: [
-        {
-          data: [20, 45, 28, 80, 99, 43]
-        }
-      ]
-    };
-    return (
-      <BarChart
-        style={{
-          marginVertical: 8,
-          borderRadius: 16
-        }}
-        data={data}
-        width={width - 32}
-        height={200}
-        chartConfig={chartConfig}
-      />
-    );
-  }
-
-  renderPieChart() {
-    const data = [
-      {
-        name: 'Seoul',
-        population: 21500000,
-        color: 'rgba(131, 167, 234, 1)',
-        legendFontColor: '#7F7F7F',
-        legendFontSize: 15
-      },
-      {
-        name: 'Toronto',
-        population: 2800000,
-        color: '#F00',
-        legendFontColor: '#7F7F7F',
-        legendFontSize: 15
-      },
-      {
-        name: 'Beijing',
-        population: 527612,
-        color: 'red',
-        legendFontColor: '#7F7F7F',
-        legendFontSize: 15
-      },
-      {
-        name: 'New York',
-        population: 8538000,
-        color: '#ffffff',
-        legendFontColor: '#7F7F7F',
-        legendFontSize: 15
-      },
-      {
-        name: 'Moscow',
-        population: 11920000,
-        color: 'rgb(0, 0, 255)',
-        legendFontColor: '#7F7F7F',
-        legendFontSize: 15
-      }
-    ];
-    return (
-      <PieChart
-        data={data}
-        width={width - 32}
-        height={200}
-        chartConfig={chartConfig}
-        accessor="population"
-        backgroundColor="transparent"
-        paddingLeft="15"
-      />
-    );
+  renderText(key) {
+    switch (key) {
+      case 'WEIGHT':
+        return (
+          <Text>
+            The Prostate Cancer Foundation recommends that all men achieve and
+            maintain a healthy weight through a nutritious diet and regular
+            physical activity. The green area is the healthy range of body mass
+            index (BMI) based on your height.
+          </Text>
+        );
+      case 'STEP':
+        return (
+          <Text>
+            The target range of steps is based on the estimated number of steps
+            associated with the recommended amount of physical activity in
+            public health guidelines (achieving 30 minutes of activity on most
+            days) in addition to your daily activity. {'\n\n'}BE SURE TO TALK TO
+            YOUR DOCTOR ABOUT WHAT EXERCISE IS RIGHT FOR YOU
+          </Text>
+        );
+      case 'ACTIVE':
+        return (
+          <Text>
+            The Prostate Cancer Foundation recommends that all men should
+            exercise as much as they are able. Exercising at a vigorous
+            intensity for 3 or more hours per week may be needed to achieve the
+            full benefit of exercise. However, brisk walking for 30 minutes on
+            most days yields substantial benefits.{'\n\n'}BE SURE TO TALK TO
+            YOUR DOCTOR ABOUT WHAT EXERCISE IS RIGHT FOR YOU{' '}
+          </Text>
+        );
+    }
   }
 
   render() {
+    const { weightArray, stepArray, activeArray, loading } = this.state;
+    console.log(this.props);
+    const { key } = this.props.navigation.state.params;
+
     return (
       <View style={styles.container}>
         {this.renderHeader()}
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 300 }}>
-          {this.renderGraph()}
-          {this.renderProgressChart()}
-          {this.renderBarChart()}
-          {this.renderPieChart()}
-        </ScrollView>
+        {loading ? (
+          <ActivityIndicator size="large" style={{ marginTop: 64 }} />
+        ) : (
+          <ScrollView
+            contentContainerStyle={{ padding: 16, paddingBottom: 300 }}
+          >
+            {key == 'WEIGHT' &&
+              this.renderBmiGraph('WEIGHT', 'WEIGHT (lbs)', weightArray)}
+            {key == 'STEP' && this.renderGraph('STEPS', 'STEPS', stepArray)}
+            {key == 'ACTIVE' &&
+              this.renderGraph('ACTIVE', 'ACTIVITY (hr)', activeArray)}
+            <View style={{ marginTop: 24 }}>{this.renderText(key)}</View>
+          </ScrollView>
+        )}
       </View>
     );
   }

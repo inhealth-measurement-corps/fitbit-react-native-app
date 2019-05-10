@@ -71,17 +71,17 @@ export default class FeedbackScreen extends Component {
           <Option
             source={require('../../assets/icons/icons8-walking.png')}
             text={'Daily Steps'}
-            onPress={() => NavigationService.navigate('Graph')}
+            onPress={() => NavigationService.navigate('Graph', {key: 'STEP'})}
           />
           <Option
             source={require('../../assets/icons/icons8-clock_8.png')}
             text={'Weekly Active Hours'}
-            onPress={() => NavigationService.navigate('Graph')}
+            onPress={() => NavigationService.navigate('Graph', {key: "ACTIVE"})}
           />
           <Option
             source={require('../../assets/icons/icons8-industrial_scales.png')}
             text={'Average Weight'}
-            onPress={() => NavigationService.navigate('Graph')}
+            onPress={() => NavigationService.navigate('Graph', {key: "WEIGHT"})}
           />
         </ScrollView>
       </View>

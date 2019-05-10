@@ -20,6 +20,7 @@ const feedbackNavigator = createStackNavigator(
     Graph: GraphScreen
   },
   {
+    initialRouteName: 'Feedback',
     headerMode: 'none'
   }
 );
@@ -30,6 +31,7 @@ const tabNavigator = createBottomTabNavigator(
     Feedback: feedbackNavigator
   },
   {
+    initialRouteName: 'Feedback', 
     tabBarVisible: false,
     defaultNavigationOptions: ({ navigation }) => ({
       tabBarIcon: ({ focused, horizontal, tintColor }) => {
@@ -60,7 +62,8 @@ const switchNavigator = createSwitchNavigator(
     Survey: tabNavigator
   },
   {
-    initialRouteName: 'Loading',
+    // initialRouteName: 'Setup',
+    initialRouteName: 'Survey',
     headerMode: 'none'
   }
 );
