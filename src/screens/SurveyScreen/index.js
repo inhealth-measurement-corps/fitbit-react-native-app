@@ -288,10 +288,10 @@ export default class SurveyScreen extends Component {
         visible={this.state.missingQuestionsModal}
         onRequestClose={() => {}}
       >
-        <View style={styles.controlModalContainer}>
+        <ScrollView>
           <View style={styles.controlModalSubContainer}>
             <Text style={styles.modalTitle}>Missing Answers</Text>
-            <Text style={{ color: 'gray', fontSize: 18, alignSelf: 'center' }}>
+            <Text style={{ color: 'gray', fontSize: 18, textAlign: 'center'}}>
               Tap on the number to go to the question
             </Text>
             <View
@@ -326,7 +326,7 @@ export default class SurveyScreen extends Component {
               ))}
             </View>
           </View>
-        </View>
+        </ScrollView>
       </Modal>
     );
   }

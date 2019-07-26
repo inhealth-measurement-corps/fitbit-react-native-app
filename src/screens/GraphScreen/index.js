@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {
+  AsyncStorage,
   ActivityIndicator,
   TouchableOpacity,
   ScrollView,
@@ -39,7 +40,8 @@ export default class GraphScreen extends Component {
   }
 
   async componentDidMount() {
-    const data = await fetch(`${url}/get_feedback/9999`);
+    const patientID = await AsyncStorage.getItem('patientID');
+    const data = await fetch(`${url}/get_feedback/${patientID}`);
     const json = await data.json();
     const feedbackArray = json.FeedbackData;
     const weightArray = feedbackArray.map(item => item.avg_weight * KGTOLB);

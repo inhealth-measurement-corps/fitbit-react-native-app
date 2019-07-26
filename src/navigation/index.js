@@ -63,7 +63,7 @@ const switchNavigator = createSwitchNavigator(
   },
   {
     // initialRouteName: 'Setup',
-    initialRouteName: 'Survey',
+    initialRouteName: 'Welcome',
     headerMode: 'none'
   }
 );

@@ -1,5 +1,6 @@
+
 import React, { Component } from 'react';
-import { View, StatusBar, Text } from 'react-native';
+import { View, StatusBar, Text, ScrollView} from 'react-native';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import Navigator from './src/navigation';
 import NavigationService from './src/navigation/NavigationService';
@@ -30,8 +31,7 @@ export default class App extends Component {
           <Navigator
             ref={navigatorRef => {
               NavigationService.setTopLevelNavigator(navigatorRef);
-            }}
-          />
+            }}/>
         </PaperProvider>
       </Provider>
     );
