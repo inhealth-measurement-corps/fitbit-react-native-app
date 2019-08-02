@@ -73,8 +73,8 @@ export default class SurveyScreen extends Component {
       const isControl = this.appState.user.control;
       console.log('is control?', isControl);
 
-      if (isControl) {
-        this.props.navigation.setParams({ tabVisible: true });
+      if (isControl == 'true') {
+        this.props.navigation.setParams({ tabVisible: false });
       } else {
         this.props.navigation.setParams({ tabVisible: true });
       }

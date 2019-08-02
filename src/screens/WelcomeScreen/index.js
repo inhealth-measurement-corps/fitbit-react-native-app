@@ -4,6 +4,7 @@ import { Appbar } from 'react-native-paper';
 import styles from './style';
 import NavigationService from '../../navigation/NavigationService';
 import { inject, observer } from 'mobx-react';
+
 @inject('appState')
 @observer
 export default class WelcomeScreen extends Component {

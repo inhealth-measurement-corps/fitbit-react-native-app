@@ -1,9 +1,9 @@
-
 import React, { Component } from 'react';
-import { View, StatusBar, Text, ScrollView} from 'react-native';
+import { StatusBar, Button, } from 'react-native';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import Navigator from './src/navigation';
 import NavigationService from './src/navigation/NavigationService';
+//import { pushNotification }from './src/notification/remote/pushNotification';
 import { Provider } from 'mobx-react';
 import stores from './src/stores';
 
@@ -17,14 +17,24 @@ const theme = {
   }
 };
 
+//pushNotification.configure();
+
 export default class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {time : 5};
   }
+
+  // handleOnPress = () =>{
+  //   pushNotification.localNotification();
+  // }
 
   render() {
     return (
+      // <View>
+      // <Button 
+      //   title={'Notification'}
+      //   onPress = {handleOnPress}/>
       <Provider {...stores}>
         <PaperProvider theme={theme}>
           <StatusBar barStyle="light-content" />
@@ -34,6 +44,7 @@ export default class App extends Component {
             }}/>
         </PaperProvider>
       </Provider>
+      // </View>
     );
   }
 }
