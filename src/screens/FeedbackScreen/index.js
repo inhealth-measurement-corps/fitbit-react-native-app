@@ -51,7 +51,7 @@ export default class FeedbackScreen extends Component {
     );
   }
 
-  renderOptions() {
+  renderIntervention() {
     return (
       <View>
       <ScrollView
@@ -93,7 +93,7 @@ export default class FeedbackScreen extends Component {
     return (
       <View style={styles.container}>
         {this.renderHeader()}
-        {this.renderOptions()}
+        {this.renderIntervention()}
       </View>
     );
   }
