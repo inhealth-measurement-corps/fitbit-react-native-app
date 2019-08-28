@@ -59,11 +59,12 @@ const switchNavigator = createSwitchNavigator(
     Loading: LoadingScreen,
     Setup: SetupScreen,
     Welcome: WelcomeScreen,
-    Survey: tabNavigator
+    Survey: tabNavigator,
+    Control: SurveyScreen
   },
   {
     // initialRouteName: 'Setup',
-    initialRouteName: 'Survey',
+    initialRouteName: 'Welcome',
     headerMode: 'none'
   }
 );

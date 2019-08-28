@@ -51,9 +51,13 @@ export default class FeedbackScreen extends Component {
     );
   }
 
-  renderOptions() {
+  renderIntervention() {
     return (
       <View>
+      <ScrollView
+          contentContainerStyle={{ padding: 16, alignItems: 'center' }}
+        >
+
         <Text
           style={{
             marginVertical: 48,
@@ -65,9 +69,6 @@ export default class FeedbackScreen extends Component {
         >
           My Progress
         </Text>
-        <ScrollView
-          contentContainerStyle={{ padding: 16, alignItems: 'center' }}
-        >
           <Option
             source={require('../../assets/icons/icons8-walking.png')}
             text={'Daily Steps'}
@@ -92,7 +93,7 @@ export default class FeedbackScreen extends Component {
     return (
       <View style={styles.container}>
         {this.renderHeader()}
-        {this.renderOptions()}
+        {this.renderIntervention()}
       </View>
     );
   }

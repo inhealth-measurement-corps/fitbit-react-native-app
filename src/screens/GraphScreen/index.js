@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {
+  AsyncStorage,
   ActivityIndicator,
   TouchableOpacity,
   ScrollView,
@@ -39,7 +40,8 @@ export default class GraphScreen extends Component {
   }
 
   async componentDidMount() {
-    const data = await fetch(`${url}/get_feedback/9999`);
+    patientID = await AsyncStorage.getItem('patientID');
+    const data = await fetch(`${url}/get_feedback/${patientID}`);
     const json = await data.json();
     const feedbackArray = json.FeedbackData;
     const weightArray = feedbackArray.map(item => item.avg_weight * KGTOLB);
@@ -51,7 +53,7 @@ export default class GraphScreen extends Component {
     this.setState({ weightArray, stepArray, activeArray, loading: false });
     this.calculateBmiZones(height / 100);
 
-    console.log('data', json);
+    console.log('Data', json);
     console.log('weight array', weightArray);
   }
 
@@ -69,8 +71,8 @@ export default class GraphScreen extends Component {
   renderHeader() {
     return (
       <Appbar.Header>
-        <Appbar.BackAction onPress={() => NavigationService.back()} />
-        <Appbar.Content title="JH ProHealth" subtitle="Feedback" />
+        <Appbar.BackAction onPress={() => NavigationService.back()}/>
+        <Appbar.Content title="JH ProHealth" subtitle="Feedback"/>
       </Appbar.Header>
     );
   }
@@ -296,7 +298,7 @@ export default class GraphScreen extends Component {
             physical activity. The green area is the healthy range of body mass
             index (BMI) based on your height.
           </Text>
-        );
+        ) ;
       case 'STEP':
         return (
           <Text>

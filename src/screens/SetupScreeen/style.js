@@ -7,8 +7,7 @@ export default StyleSheet.create({
     backgroundColor: '#fff'
   },
   content: {
-    flex: 1,
-    padding: 24
+    padding:10
   },
   headerText: {
     fontSize: 24,
@@ -21,7 +20,11 @@ export default StyleSheet.create({
     backgroundColor: '#fff'
   },
   button: {
-    margin: 16
+    marginTop:10,
+    margin: 10
+  },
+  buttonView:{
+    margin: 10
   },
   heightText: {
     color: colors.main,
@@ -63,5 +66,5 @@ export default StyleSheet.create({
   },
   radioSelectedText: {
     color: 'white'
-  }
+  },
 });

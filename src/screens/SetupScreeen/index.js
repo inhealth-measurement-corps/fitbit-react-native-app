@@ -31,6 +31,27 @@ export default class SetupScreen extends Component {
       </Appbar.Header>
     );
   }
+  
+  async saveData() {
+    const { patientID, radioSelectedIndex, heightFt, heightIn } = this.state;
+
+    if (!patientID || patientID.length == 0) {
+      this.setState({ patientError: true });
+      return;
+    }
+
+    if (radioSelectedIndex == -1) {
+      return;
+    }
+
+    await AsyncStorage.setItem('patientID', patientID + '');
+    await AsyncStorage.setItem('heightFt', heightFt + '');
+    await AsyncStorage.setItem('heightIn', heightFt + '');
+    if (radioSelectedIndex == 1) await AsyncStorage.setItem('control', 'true');
+    else await AsyncStorage.setItem('control', 'false');
+
+    NavigationService.navigate('Loading');
+  }
 
   renderContent() {
     const { radioSelectedIndex, patientError } = this.state;
@@ -115,34 +136,7 @@ export default class SetupScreen extends Component {
             </TouchableOpacity>
           </View>
         </View>
-      </ScrollView>
-    );
-  }
-
-  async saveData() {
-    const { patientID, radioSelectedIndex, heightFt, heightIn } = this.state;
-
-    if (!patientID || patientID.length == 0) {
-      this.setState({ patientError: true });
-      return;
-    }
-
-    if (radioSelectedIndex == -1) {
-      return;
-    }
-
-    await AsyncStorage.setItem('patientID', patientID + '');
-    await AsyncStorage.setItem('heightFt', heightFt + '');
-    await AsyncStorage.setItem('heightIn', heightFt + '');
-    if (radioSelectedIndex == 1) await AsyncStorage.setItem('control', 'true');
-    else await AsyncStorage.setItem('control', 'false');
-
-    NavigationService.navigate('Loading');
-  }
-
-  renderButton() {
-    return (
-      <KeyboardAvoidingView behavior="padding">
+        <KeyboardAvoidingView style = {styles.buttonView}>
         <Button
           mode="contained"
           onPress={() => {
@@ -153,15 +147,16 @@ export default class SetupScreen extends Component {
           Finish Setup
         </Button>
       </KeyboardAvoidingView>
+      </ScrollView>
     );
   }
+
 
   render() {
     return (
       <View style={styles.container}>
         {this.renderHeader()}
         {this.renderContent()}
-        {this.renderButton()}
       </View>
     );
   }

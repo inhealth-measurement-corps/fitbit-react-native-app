@@ -26,9 +26,12 @@ export default class LoadingScreen extends Component {
       control == null
     ) {
       NavigationService.navigate('Setup');
-    } else {
+    } else if(control == 'true') {
       this.props.appState.setUser({ patientID, heightFt, heightIn, control });
-      NavigationService.navigate('Survey');
+      NavigationService.navigate('Control');
+    }else{
+      this.props.appState.setUser({ patientID, heightFt, heightIn, control });
+      NavigationService.navigate('Feedback');
     }
   }
 
